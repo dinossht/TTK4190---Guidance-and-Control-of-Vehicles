@@ -1,0 +1,116 @@
+1 Introduction
+==============
+a) What is a simulation model?
+	A simulation model is something that describes the kinematics and dynamics of a system (i.e. a UAV), 
+	which are given as equations of motions. These equations contains parameters which are related to
+	elements such as weight (if it is an aircraft), etc. Using a simulation model, it is much simpler, 
+	safer and effifient to design, test and tune a controller before implementing it as part of the actual system.
+
+b)  Why is the simulation model usually simplified when designing control laws?
+	This often due to the fact that the simplified (i.e. linearized model, state decoubling) resemples the 
+	dynamics of the full model, when the system is purturbed with small but realistic inputs (small working range). 
+	Model simplifications leads to much simpler implementation of control laws.
+
+2 Coordinate Frames
+===================
+a) 	This is due to several multiple reasons. For one, when you have an UAV, you want to know how the kinematics
+	and forces acts on the body given in body frame, in order to control the system. But at the same time, the
+	vehicle is moving relative to earth, and tracking the vehicle is necessary. For this, one need to operate with
+	kinematics (pos, vel) in NED frame.
+
+b) 	This is becaue NED frame is fixed on earth, and thereby rotates with earth's rotation. However, inertial frame
+	does not rotate, and is absolute. This is so that the obiting objects such as satellites does not need to refer
+	to their orbital position relative to moving earth body, but to an absolute inertial coordinate system.
+
+c) 	Given a Gyro with three degrees of freedom, Gimbal lock is something that happens when the two innermost 
+	coordinate frames align with each other, causing the sytem to lose it's degrees of freedom. This is also why
+	euler angle rotation matrix rotation collapse when pitch is 90 degrees. This leads to division by zero in 
+	some elements which leads to unpredictable rotations.
+
+d) 	Crab angle: is given in stability, meaning when i-k plane of vehicle aligns with airspeed vector. Then the crab 
+	angle is the angle between ground speed vector and i_body axis. 
+	Fligh path angle: angle between ground speed vector and it's horizontal plane projection 
+	Angle of attack: is the between i_body and Va in body frame by rotating vehicle along j-axis so that both end up
+	in same horizontal plane. 
+
+e) 	Course is angle between North in NED and horizontal projection Vg. Crab is the difference between horizontal 
+	projection Vg and horizontal projection i_b  
+
+3 Forces and Moments
+====================
+a) 	Rudder, aileron, elevators, motor with propeller, you can have other configurations as well, hybrid of rudder and 
+	aileron in tail
+ 
+b) 	Lateral states: yaw,yawrate,roll,rollrate,v-velocity 
+	Longitudinal states: u,w-velocity,pitch,pitchrate,altitude
+	Decoupling the motions makes designing control laws much easier. In normal maneuvers, the lateral and longitudinal er
+	weakly coupled, which makes it possible to decouble them.
+
+c) 	Stall happens when angle of attack angle is so high that the vehicle loses lift. 
+
+d) 	This is due to high-pressure, low-pressure aerodynamics of airfoil. The lift vs angle of attack curve is linear for
+	small angles. This is since there is laminar flow around the foils for small angles, and this changes to turbulence
+	for larger angles.
+
+e) 	Static stability is aircraft's ability to return to steady-state when purturbed from it's nominal due to it's moments. 
+	Dynamic stability is about returning to steady-state when disturbance is present, such as wind. First can be seen as a step function, while the other as a sinesoidal function. It's ability to dampen over time.  
+
+4 Linear Design Models
+======================
+a) 	Given aircraft equations of motion as 
+		x_dot = f(x,u)
+	Trim condition when
+		x_dot* = f(x*,u*)
+	Trim condition is when some or all of the states of the aircraft are in a steady-state. Steady climb, constant altitude
+	flight, p=q=r=theta=0, etc.
+
+b) 	Same as in 1 b)
+
+c) 	They are set to zero
+
+d) 	Based on longitudinal equations of motions with alpha_rate and pitch rate
+
+5 Autopilot Design Using Successive Loop Closure
+================================================	
+a) 	It is a method for finding tuning parameter for a complex system. This is by starting with inner most loop of the system,
+	and finding tuning parameters given saturation constraints, then design the outer loops successively with bandwidth much 
+	smaller than the inner loop and by assuming that the innerloop functions as a proportional gain(in most cases unity gain) 
+	for low frequencies. Then the outerloop can be tuned in the same way as the outer loop etc. 
+
+
+b) 	take-off, climb, altiutude, hold, descend
+
+c) 	bandwidth descreases as phase-margin becomes smaller and smaller due to delay addition of integrators, two intergrators
+	in innerloop means 180 deg phase shift, which is in edge of stability. 	
+
+6 Sensors
+=========
+a)  Accelerometer: linear absolute accerelation in 3 D
+	Gyro rate: angular velocity in 3 D
+	Magnetometer: Magnetic north, heading
+	Airspeed using pitot
+	Altitude using pitot
+	GNSS for NED position
+	
+
+
+b) 	KF: 
+		pros-an optimal estimator, con-processing heavy
+	Leunberg observer: 
+		pros-much of the processing can be done offline before hand
+		con: not as constistent as KF dynamically
+
+c) 	Mass-spring system inside a casing which measures the absulute acceleration, which is the difference between the casing 
+	and the inner-mass. The accelaration is proportional to position of inner-mass compared to the casing. This deviation can
+	be for instance measured by capacitive distance measurements. 
+	KF: y_acc = y_acc + B_acc + w_acc, w~(0,R)
+I
+d) 	Is used for measuring altitude and airspeed by means of measuring absolute and differential pressure. A membrane inside
+	the tube is deflects due to differential pressure in two champers. 
+
+e) 	Not robust against external magnetic disturbances such as from power lines, motors, metal etc.  
+
+
+
+
+
