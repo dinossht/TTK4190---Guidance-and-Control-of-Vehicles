@@ -64,24 +64,8 @@ title('Step response of yaw rate');
 
 
 %% Task 1.3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% (table 12.2 from textbook)
-%{
-wb = 0.05;
-wn = wb/0.64;  
-damping = 20;
 
-Kp = wn^2*T/-K;
-Kd = (2*damping*wn-1)/(-K);
-
-sim MSFartoystyring;
-figure(1);
-clf;
-plot(-psi);hold on;plot(yaw_ref); legend('psi','ref');
-
-xlim([5000 5100])
-%}
-
-%% Task 1.4
+%% Task 1.4 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % (table 12.2 from textbook)
 wb = 0.05;
 wn = wb/0.64;  
@@ -129,6 +113,11 @@ legend('rudder input','saturation max', 'saturation min');
 xlabel('time [s]'); ylabel('rad');
 title('Rudder input and saturation limits')
 xlim([0 15000])
+
+%% Task 1.5 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Task 1.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Task 1.7 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 
