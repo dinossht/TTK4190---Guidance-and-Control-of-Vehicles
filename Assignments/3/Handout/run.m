@@ -23,10 +23,12 @@
 % the assignment. The north position is given in the first row and the east
 % position in the second row. 
 
+clear;clc;close all;
+%% Task 1.2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 10 degree step = 0.1745 rad
 
-%%
 tstart=0;           % Sim start time
-tstop=500000;       % Sim stop time
+tstop=100000;       % Sim stop time
 tsamp=10;           % Sampling time for how often states are stored. (NOT ODE solver time step)
                 
 p0=zeros(2,1);      % Initial position (NED)
@@ -35,4 +37,100 @@ psi0=0;             % Inital yaw angle
 r0=0;               % Inital yaw rate
 c=0;                % Current on (1)/off (0)
 
-sim MSFartoystyring % The measurements from the simulink model are automatically written to the workspace.
+step_time = 5000;
+unit_step = 10*(pi/180);
+sim basic; % The measurements from the simulink model are automatically written to the workspace.
+
+%% Find K and T
+K_ = (r(end) - r(5000));
+K = K_/unit_step;
+
+[P,I] = max(r+0.001 >= (r(5000)+0.63*K) & r-0.001 <= (r(5000)+0.63*K));
+T = (5002.5-5000)*tsamp;
+
+%% plot
+figure(1);
+plot(t,r,'color','k'); hold on;
+line([0 t(end)],[r(5000)+K_ r(5000)+K_],'color','r'); hold on;
+line([0 t(end)],[r(5000)+K_*0.632 r(5000)+K_*.632],'color','g'); hold on;
+line([50015 50015],[r(5000) r(5000)+K_*.632],'color','b'); hold on;
+legend('step response','K=-0.0155', '0.63*K', 'T=25s');
+
+xlim([t(5000) t(5100)]);
+ylim([-0.007 r(5000)]);
+xlabel('time [s]');
+ylabel('rad/s');
+title('Step response of yaw rate');
+
+
+%% Task 1.3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% (table 12.2 from textbook)
+%{
+wb = 0.05;
+wn = wb/0.64;  
+damping = 20;
+
+Kp = wn^2*T/-K;
+Kd = (2*damping*wn-1)/(-K);
+
+sim MSFartoystyring;
+figure(1);
+clf;
+plot(-psi);hold on;plot(yaw_ref); legend('psi','ref');
+
+xlim([5000 5100])
+%}
+
+%% Task 1.4
+% (table 12.2 from textbook)
+wb = 0.05;
+wn = wb/0.64;  
+damping = 1;
+
+Kp = wn^2*T/-K;
+Kd = (2*damping*wn-1)/(-K);
+
+c=1;
+sim MSFartoystyring;
+%% yaw
+figure(2);clf;
+subplot(2,1,1);
+plot(t,-psi);hold on;plot(t,yaw_ref); legend('psi','ref');
+xlabel('time [s]'); ylabel('rad');
+title('Yaw controller sinusoidal response')
+xlim([0 15000])
+
+subplot(2,1,2);
+plot(t,-psi-yaw_ref);
+xlabel('time [s]'); ylabel('rad');
+title('Yaw reference-output error')
+xlim([0 15000])
+
+%% yaw rate
+figure(3);clf;
+subplot(2,1,1);
+plot(t,-r);hold on;plot(t,yaw_rate_ref); legend('r','ref');
+xlabel('time [s]'); ylabel('rad/s');
+title('Yaw rate controller sinusoidal response')
+xlim([0 15000])
+
+subplot(2,1,2);
+plot(t,-r-yaw_rate_ref);
+xlabel('time [s]'); ylabel('rad/s');
+title('Yaw rate reference-output error')
+xlim([0 15000])
+
+%% rudder input and saturation constraints
+figure(4);clf;
+plot(t,rudder_input);hold on;
+line([0 t(end)],[0.4363 0.4363], 'color','r'); hold on;
+line([0 t(end)],[-0.4363 -0.4363],'color','r');
+legend('rudder input','saturation max', 'saturation min');
+xlabel('time [s]'); ylabel('rad');
+title('Rudder input and saturation limits')
+xlim([0 15000])
+
+
+
+
+
