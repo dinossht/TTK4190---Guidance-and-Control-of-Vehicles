@@ -115,8 +115,71 @@ title('Rudder input and saturation limits')
 xlim([0 15000])
 
 %% Task 1.5 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Surge speed autopilot
 %% Task 1.6 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Task 1.7 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c=0;
+sim basic_speed;
+
+K_sp = 5.955/7.3;
+T_sp = (5043-5000)*tsamp;
+
+
+
+%% Task 1.8 funker ikke med current - on %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Kp_sp = -50;%7/5.71;%1*(1/K_sp);
+Kd_sp = -0.2;%0;
+Ki_sp = 0.001;%0.0001;%0.01;%0.005;
+
+cutoff = 10;
+
+p0=zeros(2,1);      % Initial position (NED)
+v0=[3 0]';          % Initial velocity (body)
+psi0=0;             % Inital yaw angle
+r0=0;               % Inital yaw rate
+c=1;                % Current on (1)/off (0)
+
+sim MSFartoystyring_speed_1_7;
+clf;
+plot(t,v(:,1));
+% Ziegler Nichols - 
+
+%% Task 2.1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+p0=[0,0]';%[1000 700]';     % Initial position (NED)
+v0=[6.63 0]';       % Initial velocity (body)
+psi0=60*pi/180;     % Inital yaw angle
+r0=0;               % Inital yaw rate
+c=0;                % Current on (1)/off (0)
+
+Delta  = 900;     %Lookahead distance [m]
+Ki_LOS = 5e-6;
+I_max  = 0.15;
+
+
+
+
+load('WP.mat');
+figure(8);
+scatter(WP(1,:),WP(2,:)); hold on;
+plot(WP(1,:),WP(2,:));
+
+sim MSFartoystyring_2_1;
+
+pathplotter(p(:,1), p(:,2),  psi, tsamp, 10, tstart, tstop, 0, WP)
+ylim([0 50000])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
